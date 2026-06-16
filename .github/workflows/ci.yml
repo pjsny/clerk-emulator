@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: [20, 22, 24]
     steps:
       - uses: actions/checkout@v4
 
@@ -34,19 +34,22 @@ jobs:
         run: npm test
 
   e2e:
-    name: Browser E2E (Playwright)
+    name: Browser E2E (@clerk/react ${{ matrix.clerk-react }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # @clerk/react Active major (Core 3). Floor and latest of the supported
+        # major, to catch FAPI regressions across the clerk-js 6.x lineage.
+        # (Core 2 / v5 is in LTS but ships a different sign-in API + an upstream
+        # @clerk/shared build issue, so it needs a separate Core-2 frontend.)
+        clerk-react: ["6.0.0", "6"]
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            e2e/package-lock.json
-            e2e/frontend/package-lock.json
 
       - name: Install and build emulator
         run: |
@@ -57,9 +60,11 @@ jobs:
         run: npm ci
         working-directory: e2e
 
-      - name: Install frontend
-        run: npm ci
+      - name: Install frontend with @clerk/react@${{ matrix.clerk-react }}
         working-directory: e2e/frontend
+        run: |
+          rm -f package-lock.json
+          npm install "@clerk/react@${{ matrix.clerk-react }}"
 
       - name: Install Playwright (Chromium)
         run: npx playwright install --with-deps chromium
@@ -73,6 +78,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-clerk-${{ matrix.clerk-react }}
           path: e2e/playwright-report/
           retention-days: 7
