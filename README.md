@@ -44,9 +44,16 @@ const res = await app.request("/v1/users", { headers: { Authorization: "Bearer s
 
 ## What's supported
 
-Users, email addresses, organizations, memberships, invitations, and org domains (full CRUD); sessions and session tokens (with v1/v2 negotiation via `clerk-api-version` / `__clerk_api_version`); M2M tokens; OAuth 2.0 / OIDC (authorize, token, userinfo, JWKS); FAPI sign-in / MFA (TOTP) / sign-up flows; and Clerk-shaped webhooks.
-
-Out of scope: social sign-in, passkeys, SAML / enterprise SSO, multi-session, billing, profile management.
+| Capability | Details |
+|---|---|
+| Users & email addresses | full CRUD, ban / lock, metadata, verify password |
+| Organizations | CRUD, memberships, invitations, domains |
+| Sessions & tokens | session CRUD, JWT minting, v1/v2 negotiation (`clerk-api-version` / `__clerk_api_version`) |
+| M2M tokens | create, verify, revoke |
+| OAuth 2.0 / OIDC | authorize, token, userinfo, JWKS |
+| Frontend API (FAPI) | sign-in, MFA (TOTP), sign-up |
+| Webhooks | Clerk-shaped resource events |
+| _Out of scope_ | social sign-in, passkeys, SAML / enterprise SSO, multi-session, billing, profile management |
 
 ## Compatibility
 
