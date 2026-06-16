@@ -72,11 +72,17 @@ Not yet tested: `@clerk/backend` 0.x (Core 2 LTS, pre-Core-3 API) and `@clerk/ne
 ## Tests
 
 ```bash
-npm test             # unit + HTTP-integration (driven against a real server)
-cd e2e && npm test    # browser e2e (Playwright, real clerk-js)
+npm test             # unit + integration (Node, against a real server)
+cd e2e && npm test   # browser e2e (Playwright, real clerk-js)
 ```
 
-**Browser e2e** covers the end-user auth flows (password / email-code / MFA-TOTP sign-in, sign-up, org listing). The **admin / BAPI** surface is exercised end-to-end through the real `@clerk/backend` SDK over HTTP — a full lifecycle (users, organizations, memberships, invitations, domains, M2M), run across the `@clerk/backend` version matrix. OAuth/OIDC, webhooks, and session-token versioning are covered by HTTP-integration tests.
+| Layer | Covers |
+|---|---|
+| Browser e2e — Playwright + clerk-js | sign-in (password / email-code / MFA-TOTP), sign-up, org listing |
+| SDK e2e — `@clerk/backend` over HTTP | admin lifecycle: users, organizations, memberships, invitations, domains, M2M |
+| HTTP integration — raw requests | OAuth / OIDC, webhooks, session-token v1/v2 negotiation |
+
+Browser e2e and the backend SDK run across the version matrix in [Compatibility](#compatibility).
 
 ## License & attribution
 
