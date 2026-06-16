@@ -40,9 +40,9 @@ serve({ fetch: app.fetch, port, hostname: host }, () => {
     [
       "",
       "  clerk-emulator is running",
-      `  ➜ Backend API:  ${baseUrl}`,
-      `  ➜ Secret key:   ${secretKey}`,
-      `  ➜ Machine key:  ${machineKey}`,
+      `  Backend API:  ${baseUrl}`,
+      `  Secret key:   ${secretKey}`,
+      `  Machine key:  ${machineKey}`,
       "",
       "  Point the Clerk SDK at it with:",
       `    CLERK_SECRET_KEY=${secretKey}`,

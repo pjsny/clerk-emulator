@@ -17,13 +17,13 @@ The hosted Clerk API is great in production but awkward for local dev and CI: it
 
 ## Features
 
-- 🔑 **Backend API (BAPI)** — users, email addresses, organizations, memberships, invitations, organization domains, sessions.
-- 🌐 **Frontend API (FAPI)** — `/v1/environment`, `/v1/client`, session-token minting for browser flows.
-- 🤖 **Machine-to-machine (M2M) tokens** — create and verify `ak_`-style machine tokens.
-- 🪪 **OAuth / OpenID Connect** — authorize, token, userinfo, JWKS, and a rendered consent screen.
-- 📡 **Webhooks** — emits Clerk-shaped events (e.g. `user.created`, `organization.created`) to your endpoint.
-- ✅ **Real JWT signing** with `jose` — `verifyToken` / `authenticateRequest` from `@clerk/backend` succeed.
-- 🪶 **One runtime dependency you'd expect** — built on [Hono](https://hono.dev); no database, no Docker.
+- **Backend API (BAPI)** — users, email addresses, organizations, memberships, invitations, organization domains, sessions.
+- **Frontend API (FAPI)** — `/v1/environment`, `/v1/client`, session-token minting for browser flows.
+- **Machine-to-machine (M2M) tokens** — create and verify `ak_`-style machine tokens.
+- **OAuth / OpenID Connect** — authorize, token, userinfo, JWKS, and a rendered consent screen.
+- **Webhooks** — emits Clerk-shaped events (e.g. `user.created`, `organization.created`) to your endpoint.
+- **Real JWT signing** with `jose` — `verifyToken` / `authenticateRequest` from `@clerk/backend` succeed.
+- **Minimal dependencies** — built on [Hono](https://hono.dev); no database, no Docker.
 
 ## Install
 
@@ -42,8 +42,8 @@ npx clerk-emulator
 
 ```
   clerk-emulator is running
-  ➜ Backend API:  http://localhost:4000
-  ➜ Secret key:   sk_test_emulate
+  Backend API:  http://localhost:4000
+  Secret key:   sk_test_emulate
 ```
 
 Configure via env vars: `PORT`, `HOST`, `CLERK_SECRET_KEY`, `CLERK_MACHINE_KEY`.
