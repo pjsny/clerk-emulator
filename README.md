@@ -85,7 +85,7 @@ const res = await app.request("http://localhost/v1/users", {
 
 The HTTP layer is the real **Hono** framework. Everything else — an in-memory store, a webhook dispatcher, secret-key auth, and JWT signing — lives in `src/framework/` with no third-party runtime dependency beyond `hono`, `@hono/node-server`, and `jose`. State is held in memory and discarded when the process exits, so every test run is isolated.
 
-**Session token versions.** Clerk's API is versioned by date, and session token JWT v2 (nested `o` org claim + a `v` claim) shipped with API version `2025-04-10`. The session-token endpoints read the `clerk-api-version` request header and mint v2 for `2025-04-10` or later, v1 (flat `org_id`/`org_role`/`org_slug`/`org_permissions`) otherwise. Absent the header the emulator defaults to v1 for backward compatibility. The negotiation is covered by parametrized tests across the current API versions (`2025-04-10`, `2025-11-10`, `2026-05-12`).
+**Session token versions.** Clerk's API is versioned by date, and session token JWT v2 (nested `o` org claim + a `v` claim) shipped with API version `2025-04-10`. The session-token endpoints read the requested API version from the `clerk-api-version` header (backend SDKs) or the `__clerk_api_version` query param (clerk-js) and mint v2 for `2025-04-10` or later, v1 (flat `org_id`/`org_role`/`org_slug`/`org_permissions`) otherwise. Absent a version the emulator defaults to v1 for backward compatibility. The negotiation is covered by parametrized tests across the current API versions (`2025-04-10`, `2025-11-10`, `2026-05-12`).
 
 ## Status & compatibility
 
@@ -100,8 +100,11 @@ npm test                 # unit + integration: runs @clerk/backend over a real H
 cd e2e && npm test        # browser e2e: real clerk-js in Chromium against the FAPI (Playwright)
 ```
 
-The browser e2e drives a React + `clerk-js` frontend (`e2e/frontend`) through password,
-email-code (OTP), MFA/TOTP, and sign-up flows against the running emulator.
+The browser e2e drives a React + `clerk-js` frontend through password, email-code (OTP),
+MFA/TOTP, and sign-up flows against the running emulator. In CI it runs as a matrix across
+both supported Clerk SDK majors: **Core 3** (`@clerk/react` v6, `e2e/frontend`, method-style
+API) and **Core 2** (`@clerk/clerk-react` v5, `e2e/frontend-v5`, classic API over https,
+since clerk-js v5 force-upgrades the bundle URL).
 
 ## Acknowledgements
 

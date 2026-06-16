@@ -18,7 +18,9 @@ import type { ClerkStore } from "./store.js";
 export const SESSION_TOKEN_V2_API_VERSION = "2025-04-10";
 
 export function clerkApiTokenVersion(c: Context<AppEnv>): 1 | 2 {
-  const apiVersion = c.req.header("clerk-api-version");
+  // Backend SDKs send the version as the `clerk-api-version` header; clerk-js
+  // (FAPI) sends it as the `__clerk_api_version` query param. Honor both.
+  const apiVersion = c.req.header("clerk-api-version") ?? c.req.query("__clerk_api_version");
   return apiVersion && apiVersion >= SESSION_TOKEN_V2_API_VERSION ? 2 : 1;
 }
 

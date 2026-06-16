@@ -73,4 +73,16 @@ describe("Clerk API version negotiation (session token v1 vs v2)", () => {
       expect(claims.sid).toBe(sessionId);
     });
   }
+
+  it("honors the __clerk_api_version query param (clerk-js / FAPI style)", async () => {
+    const res = await fetch(`${emulator.url}/v1/sessions/${sessionId}/tokens?__clerk_api_version=2025-04-10`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${clerkTestSecretKey}` },
+    });
+    const { jwt } = (await res.json()) as { jwt: string };
+    const claims = decodeJwt(jwt) as Record<string, unknown>;
+    expect(claims.v).toBe(2);
+    expect((claims.o as Record<string, unknown>).id).toMatch(/^org_/);
+    expect(claims.org_id).toBeUndefined();
+  });
 });
