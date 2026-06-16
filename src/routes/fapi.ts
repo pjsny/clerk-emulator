@@ -1,6 +1,6 @@
 import type { RouteContext, Store, Context, AppEnv } from "../framework/index.js";
 import { generateClerkId, nowUnix } from "../helpers.js";
-import { clerkError, userResponse, resolvePrimaryOrgClaims } from "../route-helpers.js";
+import { clerkError, userResponse, resolvePrimaryOrgClaims, clerkApiTokenVersion } from "../route-helpers.js";
 import { getClerkStore } from "../store.js";
 import { createSessionToken } from "./oauth.js";
 import { buildEnvironmentJson } from "./fapi-environment.js";
@@ -194,7 +194,7 @@ export function fapiRoutes({ app, store, webhooks, baseUrl }: RouteContext): voi
 
   // Client
   const clientHandler = async (c: Context<AppEnv>) =>
-    c.json(await fapiResponse(await buildClientJson(store, baseUrl), store, baseUrl));
+    c.json(await fapiResponse(await buildClientJson(store, baseUrl, undefined, undefined, clerkApiTokenVersion(c)), store, baseUrl));
   app.get("/v1/client", clientHandler);
   app.post("/v1/client", clientHandler);
 
@@ -405,7 +405,14 @@ export function fapiRoutes({ app, store, webhooks, baseUrl }: RouteContext): voi
     const user = cs.users.findOneBy("clerk_id", session.user_id);
     if (!user) return clerkError(c, 404, "RESOURCE_NOT_FOUND", "User not found");
 
-    const jwt = await createSessionToken(store, user, sessionId, baseUrl, resolvePrimaryOrgClaims(cs, user));
+    const jwt = await createSessionToken(
+      store,
+      user,
+      sessionId,
+      baseUrl,
+      resolvePrimaryOrgClaims(cs, user),
+      clerkApiTokenVersion(c),
+    );
 
     cs.sessions.update(session.id, { last_active_at: nowUnix() });
 
@@ -435,7 +442,7 @@ export function fapiRoutes({ app, store, webhooks, baseUrl }: RouteContext): voi
         cs.sessions.update(s.id, { status: "ended", updated_at_unix: now });
       }
     }
-    return c.json(await fapiResponse(await buildClientJson(store, baseUrl), store, baseUrl));
+    return c.json(await fapiResponse(await buildClientJson(store, baseUrl, undefined, undefined, clerkApiTokenVersion(c)), store, baseUrl));
   };
   app.post("/v1/client/sessions", removeAllSessionsHandler);
   app.delete("/v1/client/sessions", removeAllSessionsHandler);

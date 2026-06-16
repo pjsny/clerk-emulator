@@ -11,6 +11,17 @@ import type {
 } from "./entities.js";
 import type { ClerkStore } from "./store.js";
 
+// Clerk API versions are date stamps (e.g. 2025-04-10). Session token JWT v2
+// was introduced with API version 2025-04-10; requests at that version or later
+// receive v2 tokens (nested `o` org claim + `v` claim), older/unset get v1.
+// Date strings in YYYY-MM-DD form compare correctly lexicographically.
+export const SESSION_TOKEN_V2_API_VERSION = "2025-04-10";
+
+export function clerkApiTokenVersion(c: Context<AppEnv>): 1 | 2 {
+  const apiVersion = c.req.header("clerk-api-version");
+  return apiVersion && apiVersion >= SESSION_TOKEN_V2_API_VERSION ? 2 : 1;
+}
+
 export function clerkError(
   c: Context<AppEnv>,
   status: number,

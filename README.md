@@ -23,6 +23,7 @@ The hosted Clerk API is great in production but awkward for local dev and CI: it
 - **OAuth / OpenID Connect** — authorize, token, userinfo, JWKS, and a rendered consent screen.
 - **Webhooks** — emits Clerk-shaped events (e.g. `user.created`, `organization.created`) to your endpoint.
 - **Real JWT signing** with `jose` — `verifyToken` / `authenticateRequest` from `@clerk/backend` succeed.
+- **API version negotiation** — honors the `clerk-api-version` header and mints session-token **v1** (flat `org_*` claims) or **v2** (nested `o` claim + `v`, for API version `2025-04-10`+) accordingly.
 - **Minimal dependencies** — built on [Hono](https://hono.dev); no database, no Docker.
 
 ## Install
@@ -83,6 +84,8 @@ const res = await app.request("http://localhost/v1/users", {
 ## How it works
 
 The HTTP layer is the real **Hono** framework. Everything else — an in-memory store, a webhook dispatcher, secret-key auth, and JWT signing — lives in `src/framework/` with no third-party runtime dependency beyond `hono`, `@hono/node-server`, and `jose`. State is held in memory and discarded when the process exits, so every test run is isolated.
+
+**Session token versions.** Clerk's API is versioned by date, and session token JWT v2 (nested `o` org claim + a `v` claim) shipped with API version `2025-04-10`. The session-token endpoints read the `clerk-api-version` request header and mint v2 for `2025-04-10` or later, v1 (flat `org_id`/`org_role`/`org_slug`/`org_permissions`) otherwise. Absent the header the emulator defaults to v1 for backward compatibility. The negotiation is covered by parametrized tests across the current API versions (`2025-04-10`, `2025-11-10`, `2026-05-12`).
 
 ## Status & compatibility
 

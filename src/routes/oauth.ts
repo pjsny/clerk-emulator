@@ -46,12 +46,18 @@ function isCodeExpired(code: PendingCode): boolean {
   return Date.now() - code.createdAt > CODE_TTL_MS;
 }
 
+// Clerk session token version. v1 uses flat org_* claims; v2 (API version
+// 2025-04-10+) nests org claims under `o` and adds a `v` claim. See
+// clerkApiTokenVersion() in route-helpers for the clerk-api-version negotiation.
+export type SessionTokenVersion = 1 | 2;
+
 export async function createSessionToken(
   store: Store,
   user: ClerkUser,
   sessionId: string,
   baseUrl: string,
   orgClaims: PrimaryOrgClaims,
+  version: SessionTokenVersion = 1,
 ): Promise<string> {
   const { privateKey } = await keyPairPromise;
   const now = Math.floor(Date.now() / 1000);
@@ -61,7 +67,19 @@ export async function createSessionToken(
     sts: "active",
   };
 
-  if (orgClaims.orgId) {
+  if (version === 2) {
+    claims.v = 2;
+    if (orgClaims.orgId) {
+      // v2 nests org claims under `o`; `rol` drops the "org:" prefix and `per`
+      // is a comma-separated permission list.
+      claims.o = {
+        id: orgClaims.orgId,
+        slg: orgClaims.orgSlug,
+        rol: (orgClaims.orgRole ?? "org:member").replace(/^org:/, ""),
+        per: (orgClaims.orgPermissions ?? []).join(","),
+      };
+    }
+  } else if (orgClaims.orgId) {
     claims.org_id = orgClaims.orgId;
     claims.org_role = orgClaims.orgRole ?? "org:member";
     claims.org_slug = orgClaims.orgSlug;

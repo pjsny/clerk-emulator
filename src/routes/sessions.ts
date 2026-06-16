@@ -8,6 +8,7 @@ import {
   sessionResponse,
   readJsonBody,
   resolvePrimaryOrgClaims,
+  clerkApiTokenVersion,
 } from "../route-helpers.js";
 import { getClerkStore } from "../store.js";
 import { createSessionToken } from "./oauth.js";
@@ -103,7 +104,14 @@ export function sessionRoutes({ app, store, baseUrl, tokenMap }: RouteContext): 
     const user = cs.users.findOneBy("clerk_id", session.user_id);
     if (!user) return clerkError(c, 404, "RESOURCE_NOT_FOUND", "User not found");
 
-    const jwt = await createSessionToken(store, user, sessionId, baseUrl, resolvePrimaryOrgClaims(cs, user));
+    const jwt = await createSessionToken(
+      store,
+      user,
+      sessionId,
+      baseUrl,
+      resolvePrimaryOrgClaims(cs, user),
+      clerkApiTokenVersion(c),
+    );
 
     cs.sessions.update(session.id, { last_active_at: nowUnix() });
 
@@ -125,7 +133,14 @@ export function sessionRoutes({ app, store, baseUrl, tokenMap }: RouteContext): 
     const user = cs.users.findOneBy("clerk_id", session.user_id);
     if (!user) return clerkError(c, 404, "RESOURCE_NOT_FOUND", "User not found");
 
-    const jwt = await createSessionToken(store, user, sessionId, baseUrl, resolvePrimaryOrgClaims(cs, user));
+    const jwt = await createSessionToken(
+      store,
+      user,
+      sessionId,
+      baseUrl,
+      resolvePrimaryOrgClaims(cs, user),
+      clerkApiTokenVersion(c),
+    );
 
     cs.sessions.update(session.id, { last_active_at: nowUnix() });
 

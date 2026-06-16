@@ -1,7 +1,7 @@
 import type { Store } from "../framework/index.js";
 import { userResponse, resolvePrimaryOrgClaims } from "../route-helpers.js";
 import { getClerkStore } from "../store.js";
-import { createSessionToken } from "./oauth.js";
+import { createSessionToken, type SessionTokenVersion } from "./oauth.js";
 import type { ClerkUser, ClerkSession, ClerkOrganizationMembership } from "../entities.js";
 
 // FAPI projection layer: builds the client/session/membership JSON shapes that
@@ -50,7 +50,12 @@ export function userOrgMemberships(store: Store, user: ClerkUser): Record<string
 }
 
 // Build a FAPI SessionJSON (with embedded user, org memberships, and a live token).
-export async function buildSessionJson(store: Store, baseUrl: string, s: ClerkSession): Promise<Record<string, unknown>> {
+export async function buildSessionJson(
+  store: Store,
+  baseUrl: string,
+  s: ClerkSession,
+  tokenVersion: SessionTokenVersion = 1,
+): Promise<Record<string, unknown>> {
   const cs = getClerkStore(store);
   const user = cs.users.findOneBy("clerk_id", s.user_id);
   const emails = user ? cs.emailAddresses.findBy("user_id", user.clerk_id) : [];
@@ -64,7 +69,7 @@ export async function buildSessionJson(store: Store, baseUrl: string, s: ClerkSe
   if (user) {
     const orgClaims = resolvePrimaryOrgClaims(cs, user);
     lastActiveOrgId = orgClaims.orgId ?? null;
-    const jwt = await createSessionToken(store, user, s.clerk_id, baseUrl, orgClaims);
+    const jwt = await createSessionToken(store, user, s.clerk_id, baseUrl, orgClaims, tokenVersion);
     lastActiveToken = { object: "token", jwt };
     userJson = { ...userResponse(user, emails), organization_memberships: userOrgMemberships(store, user) };
   }
@@ -96,10 +101,16 @@ export async function buildSessionJson(store: Store, baseUrl: string, s: ClerkSe
   };
 }
 
-export async function buildClientJson(store: Store, baseUrl: string, activeSessionId?: string | null, now = Date.now()) {
+export async function buildClientJson(
+  store: Store,
+  baseUrl: string,
+  activeSessionId?: string | null,
+  now = Date.now(),
+  tokenVersion: SessionTokenVersion = 1,
+) {
   const cs = getClerkStore(store);
   const sessions = cs.sessions.all().filter((s) => s.status === "active");
-  const sessionJsons = await Promise.all(sessions.map((s) => buildSessionJson(store, baseUrl, s)));
+  const sessionJsons = await Promise.all(sessions.map((s) => buildSessionJson(store, baseUrl, s, tokenVersion)));
 
   return {
     object: "client",
