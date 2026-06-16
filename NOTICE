@@ -1,0 +1,14 @@
+clerk-emulator
+Copyright 2026 Philip Snyder
+
+This product includes software derived from the "emulate" project
+(https://github.com/vercel-labs/emulate), Copyright Vercel, Inc.,
+licensed under the Apache License, Version 2.0.
+
+Specifically, the contents of `src/framework/` are adapted from the
+`@emulators/core` package of that project, with the HTTP layer replaced
+by the Hono framework (https://hono.dev).
+
+"Clerk" is a trademark of Clerk, Inc. This project is an independent,
+unofficial emulator built for local development and testing. It is not
+affiliated with, endorsed by, or sponsored by Clerk, Inc.

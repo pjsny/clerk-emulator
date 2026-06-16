@@ -1,0 +1,60 @@
+{
+  "name": "clerk-emulator",
+  "version": "0.1.0",
+  "description": "Local, offline emulator for Clerk's Backend and Frontend (FAPI) APIs. Develop and test Clerk authentication without the cloud — real JWT signing, M2M tokens, organizations, and webhooks.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "clerk-emulator": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "clerk",
+    "clerk-emulator",
+    "clerk-mock",
+    "clerk-dev",
+    "authentication",
+    "auth",
+    "emulator",
+    "mock",
+    "local-development",
+    "testing",
+    "jwt",
+    "fapi",
+    "backend-api",
+    "hono"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2",
+    "hono": "^4",
+    "jose": "^6"
+  },
+  "devDependencies": {
+    "@clerk/backend": "^3.4.13",
+    "@types/node": "^22",
+    "tsup": "^8",
+    "typescript": "^5.7",
+    "vitest": "^4.1.0"
+  }
+}
