@@ -76,7 +76,7 @@ npm test             # unit + HTTP-integration (driven against a real server)
 cd e2e && npm test    # browser e2e (Playwright, real clerk-js)
 ```
 
-**Browser e2e** covers the end-user auth flows (password / email-code / MFA-TOTP sign-in, sign-up, org listing). Everything else — BAPI CRUD, M2M, OAuth/OIDC, webhooks, token versioning — is **HTTP-integration** tested against a live server, not through a browser.
+**Browser e2e** covers the end-user auth flows (password / email-code / MFA-TOTP sign-in, sign-up, org listing). The **admin / BAPI** surface is exercised end-to-end through the real `@clerk/backend` SDK over HTTP — a full lifecycle (users, organizations, memberships, invitations, domains, M2M), run across the `@clerk/backend` version matrix. OAuth/OIDC, webhooks, and session-token versioning are covered by HTTP-integration tests.
 
 ## License & attribution
 
