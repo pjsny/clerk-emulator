@@ -100,11 +100,17 @@ npm test                 # unit + integration: runs @clerk/backend over a real H
 cd e2e && npm test        # browser e2e: real clerk-js in Chromium against the FAPI (Playwright)
 ```
 
-The browser e2e drives a React + `clerk-js` frontend through password, email-code (OTP),
-MFA/TOTP, and sign-up flows against the running emulator. In CI it runs as a matrix across
-both supported Clerk SDK majors: **Core 3** (`@clerk/react` v6, `e2e/frontend`, method-style
-API) and **Core 2** (`@clerk/clerk-react` v5, `e2e/frontend-v5`, classic API over https,
-since clerk-js v5 force-upgrades the bundle URL).
+The browser e2e drives password, email-code (OTP), MFA/TOTP, and sign-up flows against the
+running emulator. In CI it runs as a matrix across the Clerk frontend SDKs:
+
+- **Core 3** — `@clerk/react` v6 (`e2e/frontend`, method-style API, http), floor + latest.
+- **Core 2** — `@clerk/clerk-react` v5 (`e2e/frontend-v5`, classic API, https — clerk-js v5
+  force-upgrades the bundle URL).
+- **Vanilla** — `@clerk/clerk-js` v6 with no framework (`e2e/frontend-vanilla`), driving the
+  `SignIn`/`SignUp` resources directly.
+
+The `@clerk/backend` server SDK is exercised over a real HTTP server by the unit suite, run
+in CI as a matrix across its recent majors (`@clerk/backend` 2.x and 3.x).
 
 ## Acknowledgements
 

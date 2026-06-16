@@ -59,6 +59,11 @@ jobs:
             pkg: "@clerk/clerk-react@5"
             config: playwright.https.config.ts
             artifact: clerk-react-5
+          - label: "vanilla @clerk/clerk-js 6"
+            frontend: frontend-vanilla
+            pkg: "@clerk/clerk-js@6"
+            config: playwright.vanilla.config.ts
+            artifact: clerk-js-vanilla
     steps:
       - uses: actions/checkout@v4
 
@@ -96,3 +101,30 @@ jobs:
           name: playwright-report-${{ matrix.artifact }}
           path: e2e/playwright-report/
           retention-days: 7
+
+  backend-sdk:
+    name: "Backend SDK: @clerk/backend ${{ matrix.clerk-backend }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Recent @clerk/backend majors (Core 3). Both expose the SDK surface the
+        # tests use (users/organizations/authenticateRequest + the m2m namespace,
+        # which exists from 2.9.0). Older majors use the pre-Core-3 API.
+        clerk-backend: ["2", "3"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pin @clerk/backend ${{ matrix.clerk-backend }}
+        run: npm install -D "@clerk/backend@${{ matrix.clerk-backend }}"
+
+      - name: Test
+        run: npm test
