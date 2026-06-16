@@ -88,6 +88,18 @@ The HTTP layer is the real **Hono** framework. Everything else — an in-memory 
 
 This emulates the slices of the Clerk API most used in app development and testing. It is **not** a complete reimplementation of Clerk, and response shapes track the API versions exercised by the test suite. PRs to widen coverage are welcome.
 
+## Tests
+
+Two suites, both run in CI:
+
+```bash
+npm test                 # unit + integration: runs @clerk/backend over a real HTTP server
+cd e2e && npm test        # browser e2e: real clerk-js in Chromium against the FAPI (Playwright)
+```
+
+The browser e2e drives a React + `clerk-js` frontend (`e2e/frontend`) through password,
+email-code (OTP), MFA/TOTP, and sign-up flows against the running emulator.
+
 ## Acknowledgements
 
 The framework under `src/framework/` is adapted from the excellent
