@@ -81,36 +81,66 @@ const res = await app.request("http://localhost/v1/users", {
 
 `app` is a standard [Hono](https://hono.dev) app — use `app.request(...)` for in-memory requests, or `serve({ fetch: app.fetch, port })` from `@hono/node-server` to bind a port.
 
-## How it works
-
-The HTTP layer is the real **Hono** framework. Everything else — an in-memory store, a webhook dispatcher, secret-key auth, and JWT signing — lives in `src/framework/` with no third-party runtime dependency beyond `hono`, `@hono/node-server`, and `jose`. State is held in memory and discarded when the process exits, so every test run is isolated.
-
-**Session token versions.** Clerk's API is versioned by date, and session token JWT v2 (nested `o` org claim + a `v` claim) shipped with API version `2025-04-10`. The session-token endpoints read the requested API version from the `clerk-api-version` header (backend SDKs) or the `__clerk_api_version` query param (clerk-js) and mint v2 for `2025-04-10` or later, v1 (flat `org_id`/`org_role`/`org_slug`/`org_permissions`) otherwise. Absent a version the emulator defaults to v1 for backward compatibility. The negotiation is covered by parametrized tests across the current API versions (`2025-04-10`, `2025-11-10`, `2026-05-12`).
-
 ## Status & compatibility
 
 This emulates the slices of the Clerk API most used in app development and testing. It is **not** a complete reimplementation of Clerk, and response shapes track the API versions exercised by the test suite. PRs to widen coverage are welcome.
 
+### What's emulated
+
+| Capability | Endpoints | Coverage |
+|---|---|---|
+| Users — CRUD, ban/lock, metadata, verify password | `/v1/users*` | HTTP integration |
+| Email addresses — CRUD | `/v1/email_addresses*` | HTTP integration |
+| Organizations — CRUD, metadata | `/v1/organizations*` | HTTP integration |
+| Organization memberships | `/v1/organizations/:id/memberships*` | HTTP integration + browser e2e |
+| Invitations — create / list / revoke / bulk | `/v1/organizations/:id/invitations*` | HTTP integration |
+| Organization domains — CRUD | `/v1/organizations/:id/domains*` | HTTP integration |
+| Sessions + session tokens | `/v1/sessions*` | HTTP integration + browser e2e |
+| Session token v1/v2 negotiation (`clerk-api-version` / `__clerk_api_version`) | token endpoints | HTTP integration |
+| Machine-to-machine (M2M) tokens | `/m2m_tokens*` | HTTP integration |
+| OAuth 2.0 / OIDC — authorize, token, userinfo, JWKS | `/oauth/*`, `/.well-known/*`, `/v1/jwks` | HTTP integration |
+| FAPI sign-in — password, email code | `/v1/client/sign_ins*` | browser e2e |
+| FAPI MFA — TOTP | `/v1/client/sign_ins/:id/attempt_second_factor` | browser e2e |
+| FAPI sign-up | `/v1/client/sign_ups*` | browser e2e |
+| FAPI environment / client / dev browser | `/v1/environment`, `/v1/client`, `/v1/dev_browser` | HTTP integration + browser e2e |
+| Webhooks — resource events | configured endpoints | HTTP integration |
+| `authenticateRequest` / `verifyToken` | token verification | HTTP integration (`@clerk/backend`) |
+
+### Tested SDK & runtime versions (CI matrix)
+
+| Surface | SDK | Versions | Clerk core | How |
+|---|---|---|---|---|
+| Frontend (React) | `@clerk/react` | 6.0.0, latest 6.x | Core 3 (Active) | Browser e2e |
+| Frontend (React) | `@clerk/clerk-react` | latest 5.x | Core 2 (LTS) | Browser e2e |
+| Frontend (vanilla) | `@clerk/clerk-js` | latest 6.x, 5.x | Core 3, Core 2 (LTS) | Browser e2e |
+| Backend | `@clerk/backend` | latest 2.x, 3.x | Core 3 | HTTP integration |
+| Runtime | Node.js | 20, 22, 24 | — | Unit + integration |
+
+Clerk session token JWT v2 (nested `o` org claim + a `v` claim) shipped with API version `2025-04-10`; the emulator mints v2 for `2025-04-10`+ and v1 otherwise, negotiated from the `clerk-api-version` header (backend SDKs) or `__clerk_api_version` query param (clerk-js). This is covered across the `2025-04-10`, `2025-11-10`, and `2026-05-12` API versions.
+
+### Is everything e2e tested?
+
+There are two layers of coverage, and together they exercise the whole table above against a **running** emulator:
+
+- **Browser e2e** (Playwright with real clerk-js / React / vanilla) covers the end-user auth flows: password / email-code / MFA-TOTP sign-in, sign-up, and org-membership listing.
+- **HTTP integration** (the test suite runs against a real `@hono/node-server`, driven by `@clerk/backend` and raw `fetch`) covers the rest — BAPI CRUD, M2M, OAuth/OIDC, webhooks, organization domains, and session-token versioning.
+
+So every capability the emulator offers is tested against a live server; the admin/BAPI operations are HTTP-integration tested rather than driven through a browser.
+
+### Not yet covered
+
+- **Core 2 (LTS) backend SDK** — `@clerk/backend` 0.x uses the pre-Core-3 API (array pagination, no `m2m`) and would need a separate test variant.
+- **`@clerk/nextjs`** — not exercised (neither Core 2 nor Core 3).
+- Social / OAuth sign-in, passkeys, SAML / enterprise SSO, multi-session, billing, and user-profile management are out of scope.
+
 ## Tests
 
-Two suites, both run in CI:
-
 ```bash
-npm test                 # unit + integration: runs @clerk/backend over a real HTTP server
-cd e2e && npm test        # browser e2e: real clerk-js in Chromium against the FAPI (Playwright)
+npm test                  # unit + HTTP-integration suite (Node)
+cd e2e && npm test         # browser e2e (Playwright) — defaults to the @clerk/react cell
 ```
 
-The browser e2e drives password, email-code (OTP), MFA/TOTP, and sign-up flows against the
-running emulator. In CI it runs as a matrix across the Clerk frontend SDKs:
-
-- **Core 3** — `@clerk/react` v6 (`e2e/frontend`, method-style API, http), floor + latest.
-- **Core 2** — `@clerk/clerk-react` v5 (`e2e/frontend-v5`, classic API, https — clerk-js v5
-  force-upgrades the bundle URL).
-- **Vanilla** — `@clerk/clerk-js` v6 with no framework (`e2e/frontend-vanilla`), driving the
-  `SignIn`/`SignUp` resources directly.
-
-The `@clerk/backend` server SDK is exercised over a real HTTP server by the unit suite, run
-in CI as a matrix across its recent majors (`@clerk/backend` 2.x and 3.x).
+Browser e2e runs as a CI matrix across the frontend SDKs in the table above. The React cells pin a full `clerkJSVersion` (overridable via `VITE_CLERK_JS_VERSION`) so the clerk-js bundle loads at an exact version rather than a floating `@<major>` range (which the CDN serves via a redirect chain); the emulator's clerk-js proxy also caches it in memory. The vanilla cell bundles clerk-js, so it needs no CDN fetch at all.
 
 ## Acknowledgements
 

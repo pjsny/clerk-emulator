@@ -59,11 +59,16 @@ jobs:
             pkg: "@clerk/clerk-react@5"
             config: playwright.https.config.ts
             artifact: clerk-react-5
-          - label: "vanilla @clerk/clerk-js 6"
+          - label: "vanilla @clerk/clerk-js 6 (Core 3)"
             frontend: frontend-vanilla
             pkg: "@clerk/clerk-js@6"
             config: playwright.vanilla.config.ts
-            artifact: clerk-js-vanilla
+            artifact: clerk-js-vanilla-6
+          - label: "vanilla @clerk/clerk-js 5 (Core 2 LTS)"
+            frontend: frontend-vanilla
+            pkg: "@clerk/clerk-js@5"
+            config: playwright.vanilla.config.ts
+            artifact: clerk-js-vanilla-5
     steps:
       - uses: actions/checkout@v4
 
