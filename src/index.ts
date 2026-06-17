@@ -16,6 +16,7 @@ import { invitationRoutes } from "./routes/invitations.js";
 import { sessionRoutes } from "./routes/sessions.js";
 import { organizationDomainRoutes } from "./routes/organization-domains.js";
 import { m2mTokenRoutes } from "./routes/m2m-tokens.js";
+import { testingTokenRoutes } from "./routes/testing-tokens.js";
 import { fapiRoutes } from "./routes/fapi.js";
 import { clerkJsProxyRoutes } from "./routes/clerk-js-proxy.js";
 import { getClerkStore } from "./store.js";
@@ -264,6 +265,7 @@ export const clerkPlugin: ServicePlugin = {
     organizationDomainRoutes(ctx);
     sessionRoutes(ctx);
     m2mTokenRoutes(ctx);
+    testingTokenRoutes(ctx);
     fapiRoutes(ctx);
     clerkJsProxyRoutes(ctx);
   },

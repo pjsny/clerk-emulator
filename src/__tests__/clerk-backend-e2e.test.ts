@@ -144,4 +144,15 @@ describe("Backend SDK lifecycle e2e (@clerk/backend over HTTP)", () => {
 
     await clerk.organizations.deleteOrganizationDomain({ organizationId: org.id, domainId: domain.id });
   });
+
+  it("testing tokens: createTestingToken + __clerk_testing_token (@clerk/testing compat)", async () => {
+    const tt: any = await clerk.testingTokens.createTestingToken();
+    expect(typeof tt.token).toBe("string");
+    expect(tt.token.length).toBeGreaterThan(0);
+
+    // FAPI requests carrying @clerk/testing's query param are accepted as-is
+    // (the emulator has no bot protection to bypass).
+    const res = await fetch(`${emulator.url}/v1/environment?__clerk_testing_token=${tt.token}`);
+    expect(res.status).toBe(200);
+  });
 });

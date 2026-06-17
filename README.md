@@ -1,5 +1,9 @@
 # clerk-emulator
 
+[![CI](https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/clerk-emulator)](https://www.npmjs.com/package/clerk-emulator)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+
 A local, offline emulator for [Clerk](https://clerk.com)'s Backend API (BAPI) and Frontend API (FAPI). Develop and test Clerk auth with no network, no cloud instance, and no rate limits — it signs real JWTs, so `@clerk/backend` and `clerk-js` work against it unmodified. Built on [Hono](https://hono.dev); state is in-memory and resets every run.
 
 ## Install
@@ -18,7 +22,7 @@ npx clerk-emulator
 # Secret key:   sk_test_emulate
 ```
 
-Configure via env: `PORT`, `HOST`, `CLERK_SECRET_KEY`, `CLERK_MACHINE_KEY`.
+Configure via env: `PORT`, `HOST`, `CLERK_SECRET_KEY`, `CLERK_MACHINE_KEY`. Add `--persist <file>` (or `CLERK_PERSIST`) to keep state across restarts.
 
 Point the backend SDK at it:
 
@@ -53,6 +57,7 @@ const res = await app.request("/v1/users", { headers: { Authorization: "Bearer s
 | OAuth 2.0 / OIDC | authorize, token, userinfo, JWKS |
 | Frontend API (FAPI) | sign-in, MFA (TOTP), sign-up |
 | Webhooks | Clerk-shaped resource events |
+| Testing tokens | `@clerk/testing` compatible — `POST /v1/testing_tokens`, `__clerk_testing_token` |
 | _Out of scope_ | social sign-in, passkeys, SAML / enterprise SSO, multi-session, billing, profile management |
 
 ## Compatibility
@@ -82,7 +87,7 @@ cd e2e && npm test   # browser e2e (Playwright, real clerk-js)
 | SDK e2e — `@clerk/backend` over HTTP | admin lifecycle: users, organizations, memberships, invitations, domains, M2M |
 | HTTP integration — raw requests | OAuth / OIDC, webhooks, session-token v1/v2 negotiation |
 
-Browser e2e and the backend SDK run across the version matrix in [Compatibility](#compatibility).
+Browser e2e and the backend SDK run across the version matrix in [Compatibility](#compatibility). See [`docs/testing.md`](./docs/testing.md) for Playwright/Cypress (`@clerk/testing`), backend-SDK, and in-process setups.
 
 ## License & attribution
 

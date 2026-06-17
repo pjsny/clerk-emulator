@@ -1,6 +1,6 @@
 {
   "name": "clerk-emulator",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Local, offline emulator for Clerk's Backend and Frontend (FAPI) APIs. Develop and test Clerk authentication without the cloud — real JWT signing, M2M tokens, organizations, and webhooks.",
   "license": "Apache-2.0",
   "type": "module",
@@ -40,7 +40,8 @@
     "start": "node dist/cli.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=20"
