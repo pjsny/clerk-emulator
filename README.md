@@ -44,7 +44,25 @@ const { app } = createServer(clerkPlugin, {
 const res = await app.request("/v1/users", { headers: { Authorization: "Bearer sk_test_emulate" } });
 ```
 
-`app` is a [Hono](https://hono.dev) app — call `app.request(...)` in-memory, or `serve({ fetch: app.fetch, port })` (`@hono/node-server`) to bind a port. For frontend apps, point clerk-js at the emulator with a relative `proxyUrl` (see `e2e/` for working React and vanilla setups).
+`app` is a [Hono](https://hono.dev) app — call `app.request(...)` in-memory, or `serve({ fetch: app.fetch, port })` (`@hono/node-server`) to bind a port.
+
+Point the frontend (clerk-js) at it: set a **relative** `proxyUrl` so clerk-js sends Frontend API calls to a path your dev server forwards to the emulator (clerk-js forces `https` on _absolute_ proxy URLs, so it must be relative). Pin `clerkJSVersion` to skip the floating `@<major>` CDN redirect.
+
+```tsx
+// React entry
+<ClerkProvider publishableKey="pk_test_..." proxyUrl="/__clerk" clerkJSVersion="6.17.0">
+```
+
+```ts
+// vite.config.ts — forward the proxy path to the emulator
+server: {
+  proxy: {
+    "/__clerk": { target: "http://localhost:4000", changeOrigin: true, rewrite: (p) => p.replace(/^\/__clerk/, "") },
+  },
+}
+```
+
+Vanilla clerk-js is the same idea: `new Clerk(pk, { proxyUrl: "/__clerk" })`. See [`e2e/`](./e2e) for complete React, `@clerk/clerk-react`, and vanilla setups.
 
 ## What's supported
 
