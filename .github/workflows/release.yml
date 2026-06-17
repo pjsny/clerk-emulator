@@ -1,0 +1,36 @@
+name: Release
+
+# Changesets versioning. On main, this opens/updates a "Version Packages" PR
+# that applies queued changesets (bumps the version + updates CHANGELOG.md).
+# Publishing happens separately: merge that PR, then push a vX.Y.Z tag to
+# trigger publish.yml (npm trusted publishing).
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the version branch/PR
+      pull-requests: write # open the "Version Packages" PR
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Create or update the Version Packages PR
+        uses: changesets/action@v1
+        with:
+          version: npx changeset version
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

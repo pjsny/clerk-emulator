@@ -1,7 +1,9 @@
 name: Publish
 
-# Publishes to npm with provenance when a v* tag is pushed.
-# Requires an NPM_TOKEN repository secret (automation token).
+# Publishes to npm via OIDC trusted publishing (no NPM_TOKEN) when a v* tag is
+# pushed. One-time setup on npmjs.com: after the first publish, add a Trusted
+# Publisher (GitHub Actions -> this repo -> publish.yml). Provenance is emitted
+# automatically (package name matches the repo name).
 on:
   push:
     tags:
@@ -12,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # for npm provenance
+      id-token: write # required for npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +22,9 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      - name: Use npm >= 11.5.1 (required for OIDC trusted publishing)
+        run: npm install -g npm@latest
 
       - run: npm ci
 
@@ -29,6 +34,5 @@ jobs:
 
       - run: npm test
 
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish (tokenless OIDC, automatic provenance)
+        run: npm publish
