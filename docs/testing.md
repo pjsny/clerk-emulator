@@ -39,8 +39,57 @@ Cypress is analogous — call `clerkSetup()` in `cypress.config` and `setupClerk
 in a command (`@clerk/testing/cypress`), with the same `CLERK_API_URL` / `frontendApiUrl`.
 
 For the clerk-js side, point the SDK at the emulator with a **relative** `proxyUrl` (clerk-js
-forces `https` on absolute proxy URLs) and let your dev server forward it. See [`e2e/`](../e2e)
-for complete working setups: `@clerk/react`, `@clerk/clerk-react`, and vanilla `@clerk/clerk-js`.
+forces `https` on absolute proxy URLs) and let your dev server forward it to the emulator.
+
+### React (`@clerk/react` or `@clerk/clerk-react`)
+
+```tsx
+// main.tsx
+import { ClerkProvider } from "@clerk/react"; // or "@clerk/clerk-react"
+
+createRoot(document.getElementById("root")!).render(
+  <ClerkProvider
+    publishableKey="pk_test_ZW11bGF0ZS5leGFtcGxlLmNvbSQ"
+    proxyUrl="/__clerk"           // relative: clerk-js force-upgrades absolute proxy URLs to https
+    clerkJSVersion="6.17.0"       // pin a full version; the floating @<major> range 301-redirects on the CDN
+  >
+    <App />
+  </ClerkProvider>,
+);
+```
+
+```ts
+// vite.config.ts — forward the proxy path to the emulator
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      "/__clerk": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/__clerk/, ""),
+      },
+    },
+  },
+});
+```
+
+> Core 2 (`@clerk/clerk-react` v5) additionally requires the dev server to use **https** —
+> clerk-js v5 force-upgrades the bundle URL. Add `@vitejs/plugin-basic-ssl` and run Playwright
+> with `ignoreHTTPSErrors: true`. (Core 3 / v6 works over http.)
+
+### Vanilla `@clerk/clerk-js`
+
+```ts
+import { Clerk } from "@clerk/clerk-js";
+
+const clerk = new Clerk("pk_test_ZW11bGF0ZS5leGFtcGxlLmNvbSQ", { proxyUrl: "/__clerk" });
+await clerk.load();
+const res = await clerk.client.signIn.create({ identifier: "alice@example.com", strategy: "password", password: "alice123" });
+await clerk.setActive({ session: res.createdSessionId });
+```
+
+See [`e2e/`](../e2e) for complete, runnable setups of all three.
 
 ## Backend SDK (server-side)
 

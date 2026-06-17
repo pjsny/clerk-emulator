@@ -44,11 +44,6 @@ jobs:
         # http; Core 2 (@clerk/clerk-react v5, LTS) uses the classic API and must
         # serve https because clerk-js v5 force-upgrades the bundle URL.
         include:
-          - label: "@clerk/react 6.0.0 (Core 3 floor)"
-            frontend: frontend
-            pkg: "@clerk/react@6.0.0"
-            config: playwright.config.ts
-            artifact: clerk-react-6.0.0
           - label: "@clerk/react 6 (Core 3 latest)"
             frontend: frontend
             pkg: "@clerk/react@6"

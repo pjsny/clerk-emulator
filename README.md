@@ -84,7 +84,7 @@ Verified in CI against:
 
 | Surface | SDK | Versions | Clerk core |
 |---|---|---|---|
-| Frontend (React) | `@clerk/react` | 6.0.0, latest 6.x | Core 3 (Active) |
+| Frontend (React) | `@clerk/react` | latest 6.x | Core 3 (Active) |
 | Frontend (React) | `@clerk/clerk-react` | latest 5.x | Core 2 (LTS) |
 | Frontend (vanilla) | `@clerk/clerk-js` | latest 5.x, 6.x | Core 2 (LTS), Core 3 |
 | Backend | `@clerk/backend` | latest 2.x, 3.x | Core 3 |
