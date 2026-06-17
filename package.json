@@ -16,7 +16,9 @@
     "clerk-emulator": "./dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "clerk",
