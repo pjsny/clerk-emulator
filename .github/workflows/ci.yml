@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# Cancel superseded runs for the same ref so rapid pushes don't pile up runners.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test (Node ${{ matrix.node }})
@@ -41,6 +46,7 @@ jobs:
     # stay informational (cdnDependent -> non-blocking). The vanilla cells bundle
     # clerk-js (no CDN), so they are hermetic and gate CI alongside unit/backend.
     continue-on-error: ${{ matrix.cdnDependent || false }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -89,8 +95,17 @@ jobs:
           rm -f package-lock.json
           npm install "${{ matrix.pkg }}"
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+
       - name: Install Playwright (Chromium)
-        run: npx playwright install --with-deps chromium
+        # ubuntu-latest already ships the Chromium system libs, so skip
+        # --with-deps (the apt step that adds optional fonts and is the slow,
+        # cancel-prone part). The browser binary is restored from cache above.
+        run: npx playwright install chromium
         working-directory: e2e
 
       - name: Run browser e2e (boots emulator + Vite automatically)
