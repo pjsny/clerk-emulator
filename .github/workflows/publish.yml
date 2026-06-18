@@ -13,7 +13,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # create the GitHub Release
       id-token: write # required for npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@v4
@@ -43,4 +43,18 @@ jobs:
             echo "clerk-emulator@$VERSION is already published — skipping."
           else
             npm publish
+          fi
+
+      - name: Create GitHub Release
+        # Idempotent: create the release for this tag (with its CHANGELOG entry)
+        # if one doesn't already exist.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "Release v$VERSION already exists — skipping."
+          else
+            NOTES=$(awk "/^## ${VERSION//./\\.}\$/{f=1;next} f&&/^## /{exit} f" CHANGELOG.md)
+            gh release create "v$VERSION" --title "v$VERSION" --notes "${NOTES:-Release v$VERSION}"
           fi
