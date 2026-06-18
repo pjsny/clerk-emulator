@@ -1,0 +1,21 @@
+# Socket (https://socket.dev) configuration — https://docs.socket.dev/docs/socket-yml
+version: 2
+
+# Only run PR dependency-alert scans when a manifest/lockfile actually changes.
+triggerPaths:
+  - "package.json"
+  - "package-lock.json"
+  - "e2e/**/package.json"
+  - "e2e/**/package-lock.json"
+
+githubApp:
+  enabled: true
+  dependencyOverviewEnabled: true
+
+# Note: clerk-emulator is a local Clerk API server, so Socket's "Network access"
+# alert on its own code is expected — it runs an HTTP server, optionally proxies
+# the clerk-js bundle from jsDelivr, and delivers webhooks to a user-configured
+# URL. There is no telemetry. We intentionally do NOT disable the networkAccess
+# alert here so that a future *dependency* introducing network access still
+# surfaces; the emulator's own access is acknowledged in the Socket dashboard.
+# (To silence it repo-wide instead, add: issueRules: { networkAccess: false })
