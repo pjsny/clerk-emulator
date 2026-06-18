@@ -36,24 +36,27 @@ jobs:
   e2e:
     name: "Browser E2E: ${{ matrix.label }}"
     runs-on: ubuntu-latest
+    # The React cells load the clerk-js bundle from jsDelivr at runtime, so they
+    # can flake when the CDN rate-limits a runner (clerk-js never loads). They
+    # stay informational (cdnDependent -> non-blocking). The vanilla cells bundle
+    # clerk-js (no CDN), so they are hermetic and gate CI alongside unit/backend.
+    continue-on-error: ${{ matrix.cdnDependent || false }}
     strategy:
       fail-fast: false
       matrix:
-        # Each cell runs the same Playwright flows against a different Clerk SDK
-        # major. Core 3 (@clerk/react v6, Active) uses the method-style API over
-        # http; Core 2 (@clerk/clerk-react v5, LTS) uses the classic API and must
-        # serve https because clerk-js v5 force-upgrades the bundle URL.
         include:
           - label: "@clerk/react 6 (Core 3 latest)"
             frontend: frontend
             pkg: "@clerk/react@6"
             config: playwright.config.ts
             artifact: clerk-react-6-latest
+            cdnDependent: true
           - label: "@clerk/clerk-react 5 (Core 2 LTS)"
             frontend: frontend-v5
             pkg: "@clerk/clerk-react@5"
             config: playwright.https.config.ts
             artifact: clerk-react-5
+            cdnDependent: true
           - label: "vanilla @clerk/clerk-js 6 (Core 3)"
             frontend: frontend-vanilla
             pkg: "@clerk/clerk-js@6"
