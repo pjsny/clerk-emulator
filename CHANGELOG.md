@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 5b8d6f6: Include the Apache-2.0 `NOTICE` (and `CHANGELOG`) in the published package, and make the clerk-js bundle proxy resilient to transient CDN failures (retry with a per-attempt timeout + in-memory cache).
+
 ## 1.0.0
 
 Initial release.
