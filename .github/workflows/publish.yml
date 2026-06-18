@@ -35,4 +35,12 @@ jobs:
       - run: npm test
 
       - name: Publish (tokenless OIDC, automatic provenance)
-        run: npm publish
+        # Idempotent: skip if this version is already on npm, so re-tagging or
+        # backfilling a tag for an already-published version doesn't fail.
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "clerk-emulator@$VERSION" version >/dev/null 2>&1; then
+            echo "clerk-emulator@$VERSION is already published — skipping."
+          else
+            npm publish
+          fi
