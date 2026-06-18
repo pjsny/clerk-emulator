@@ -3,6 +3,12 @@
   "version": "1.0.1",
   "description": "Local, offline emulator for Clerk's Backend and Frontend (FAPI) APIs. Develop and test Clerk authentication without the cloud — real JWT signing, M2M tokens, organizations, and webhooks.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pjsny/clerk-emulator.git"
+  },
+  "homepage": "https://github.com/pjsny/clerk-emulator#readme",
+  "bugs": "https://github.com/pjsny/clerk-emulator/issues",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
