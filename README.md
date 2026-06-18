@@ -1,9 +1,15 @@
-# clerk-emulator
+<p align="center">
+  <img src="https://raw.githubusercontent.com/pjsny/clerk-emulator/main/assets/banner.png" alt="clerk-emulator — local, offline, in-memory" width="820" />
+</p>
 
-[![CI](https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/clerk-emulator)](https://www.npmjs.com/package/clerk-emulator)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
-[![Socket Badge](https://socket.dev/api/badge/npm/package/clerk-emulator)](https://socket.dev/npm/package/clerk-emulator)
+<p align="center">
+  <a href="https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml"><img src="https://github.com/pjsny/clerk-emulator/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/clerk-emulator"><img src="https://img.shields.io/npm/v/clerk-emulator" alt="npm" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License: Apache-2.0" /></a>
+  <a href="https://socket.dev/npm/package/clerk-emulator"><img src="https://socket.dev/api/badge/npm/package/clerk-emulator" alt="Socket" /></a>
+</p>
+
+# clerk-emulator
 
 A local, offline emulator for [Clerk](https://clerk.com)'s Backend API (BAPI) and Frontend API (FAPI). Develop and test Clerk auth with no network, no cloud instance, and no rate limits — it signs real JWTs, so `@clerk/backend` and `clerk-js` work against it unmodified. Built on [Hono](https://hono.dev); state is in-memory and resets every run.
 
